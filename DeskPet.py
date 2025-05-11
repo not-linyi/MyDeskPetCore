@@ -2,7 +2,7 @@ import sys
 
 from PySide6.QtWidgets import QApplication
 
-from src.TablePet.PetMain import PetMain
+from src.MyDeskPetCore.PetMain import PetMain
 
 if __name__ == "__main__":
     # 创建QApplication实例，传递命令行参数

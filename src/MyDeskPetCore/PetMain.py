@@ -19,11 +19,11 @@ class PetMain(QOpenGLWidget):
         self.timer.timeout.connect(self.update)
         self.timer.start(1000 // 60)  # 1000 // (帧率) ,fps = 1000 // 60 =  16
 
-
     def paintGL(self):
         # 更新模型状态
         self.live2d.update(0.8)
         # 绘制模型
         self.live2d.draw()
+
     def initializeGL(self) -> None:
         self.live2d.initialize(self.model_path, (self.window_width, self.window_height))
