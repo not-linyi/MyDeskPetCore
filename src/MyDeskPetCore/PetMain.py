@@ -1,7 +1,10 @@
+import sys
+
 from PySide6.QtCore import QTimer
 from PySide6.QtOpenGLWidgets import QOpenGLWidget
 
 from .Live2d import Live2dModel
+from .Menu import ContextMenuEvent
 
 
 class PetMain(QOpenGLWidget):
@@ -19,6 +22,9 @@ class PetMain(QOpenGLWidget):
         self.timer.timeout.connect(self.update)
         self.timer.start(1000 // 60)  # 1000 // (帧率) ,fps = 1000 // 60 =  16
 
+        # 创建托盘菜单
+        self.tray = None
+
     def paintGL(self):
         # 更新模型状态
         self.live2d.update(0.8)
@@ -27,3 +33,16 @@ class PetMain(QOpenGLWidget):
 
     def initializeGL(self) -> None:
         self.live2d.initialize(self.model_path, (self.window_width, self.window_height))
+        # 创建托盘菜单
+        self.tray = ContextMenuEvent(self)
+
+    # 右键菜单事件处理函数
+    def contextMenuEvent(self, event):
+        return self.tray.show(event.globalPos())
+
+    def quit(self):
+        # 释放Live2D资源
+        self.live2d.dispose()
+        # 退出应用程序
+        self.close()
+        sys.exit()

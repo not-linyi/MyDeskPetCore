@@ -34,3 +34,10 @@ class Live2dModel:
 
     def draw(self):
         self.model.Draw()
+
+    @staticmethod
+    def dispose():
+        """
+        释放Live2D资源。
+        """
+        live2d.dispose()
