@@ -72,3 +72,16 @@ class PetMain(QOpenGLWidget):
         # 退出应用程序
         self.close()
         sys.exit()
+        
+    def closeEvent(self, event):
+        """处理窗口关闭事件
+        
+        确保在窗口关闭时正确释放资源，防止关闭再开时出现异常
+        """
+        
+        # 清理MainWindow实例引用
+        if ContextMenuEvent.main_window_instance is not None:
+            ContextMenuEvent.main_window_instance = None
+            
+        # 接受关闭事件
+        event.accept()

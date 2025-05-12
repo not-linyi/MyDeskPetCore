@@ -14,11 +14,12 @@ class ContextMenuEvent:
     """
 
     # 保存MainWindow实例的类变量
-    _main_window_instance = None
+    main_window_instance = None
 
     def __init__(self, parent):
         """初始化系统托盘菜单
-
+        
+        该方法创建并配置系统托盘图标及其菜单项
         """
         # 初始化系统托盘图标组件
         self.parent = parent
@@ -63,7 +64,11 @@ class ContextMenuEvent:
 
         当前为空实现，需后续扩展具体页面打开逻辑
         """
-        pass
+        # 使用单例模式，如果实例不存在则创建
+        if ContextMenuEvent.main_window_instance is None:
+            ContextMenuEvent.main_window_instance = MainWindow.MainWindow(self.parent)
+        # 显示窗口并切换到插件管理页面
+        ContextMenuEvent.main_window_instance.switch_to_plugin_manage()
 
     def _open_about_page(self):
         """打开关于页面
@@ -71,10 +76,10 @@ class ContextMenuEvent:
         当前为空实现，需后续扩展具体页面打开逻辑
         """
         # 使用单例模式，如果实例不存在则创建
-        if ContextMenuEvent._main_window_instance is None:
-            ContextMenuEvent._main_window_instance = MainWindow.MainWindow(self.parent)
+        if ContextMenuEvent.main_window_instance is None:
+            ContextMenuEvent.main_window_instance = MainWindow.MainWindow(self.parent)
         # 切换到关于页面并显示窗口
-        ContextMenuEvent._main_window_instance.switch_to_about()
+        ContextMenuEvent.main_window_instance.switch_to_about()
 
     def _open_settings_page(self):
         """打开设置页面
