@@ -1,0 +1,20 @@
+# 桌宠应用默认配置文件
+[window]
+# 窗口初始位置
+x = 300
+y = 200
+# 窗口大小
+width = 400
+height = 400
+
+
+[model]
+# 模型路径
+model_path = "resources/Live2dModel/Firefly-desktop/Firefly.model3.json"
+# 缩放比例
+scale = 0.75
+
+
+[animation]
+# 帧率设置 (fps)
+frame_rate_ms = 60

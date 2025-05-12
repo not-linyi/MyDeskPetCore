@@ -1,6 +1,8 @@
 import live2d.v3 as live2d
 
 from live2d.utils import log
+from live2d.utils.lipsync import WavHandler
+from live2d.v3 import StandardParams
 
 live2d.setLogEnable(False)
 
@@ -9,6 +11,9 @@ class Live2dModel:
 
     def __init__(self):
         self.model = None
+        # 唇形同步相关
+        self.wavHandler = WavHandler()
+        self.lipSyncN = 2.5
         live2d.init()
 
     def initialize(self, model_path, display_size):
@@ -28,11 +33,20 @@ class Live2dModel:
 
     def update(self, scale):
         self.model.Update()
+
+        # 更新唇形同步
+        if self.wavHandler.Update():
+            self.model.AddParameterValue(
+                StandardParams.ParamMouthOpenY, self.wavHandler.GetRms() * self.lipSyncN
+            )
+
         # 更新模型位置和缩放
         self.model.SetOffset(0, 0)
         self.model.SetScale(scale)
 
     def draw(self):
+        # 清除缓冲区并绘制模型，避免残影
+        live2d.clearBuffer()
         self.model.Draw()
 
     @staticmethod
