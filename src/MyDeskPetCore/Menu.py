@@ -1,8 +1,13 @@
+import importlib.util
+import os
+from typing import Any
+
 from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import QSystemTrayIcon
 
-from qfluentwidgets import SystemTrayMenu, Action, FluentIcon
+from qfluentwidgets import SystemTrayMenu, Action, FluentIcon, RoundMenu
 
+from ..ConfigManager import ConfigManager
 from ..Window import MainWindow
 
 
@@ -37,6 +42,10 @@ class ContextMenuEvent:
         )
         self.menu.addAction(self.manageAction)
 
+        # 插件菜单
+        for i in self.parent.plugins:
+            self.add_plugin(i)
+
         # 创建关于菜单项并绑定事件
         self.about_action = Action(FluentIcon.INFO, '关于',
                                    triggered=lambda: self._open_about_page())
@@ -58,6 +67,37 @@ class ContextMenuEvent:
     def show(self, pos):
         # 显示右键菜单
         self.menu.exec(pos)
+
+    def add_plugin(self, i):
+        plugin_access = RoundMenu(i['plugin_chinese_name'])
+        try:
+            config_path = os.path.join(i['plugin_path'], "config.toml")
+            plugin_config: dict[str, Any] = ConfigManager(
+                config_path,
+                create_if_not_exists=False
+            ).config
+        except FileNotFoundError:
+            print(f"{i['plugin_name']}配置文件未找到，请检查文件路径。")
+            return
+
+        try:
+            plugin_access.setIcon(FluentIcon[plugin_config['plugin']['icon']])
+            # 创建模块 spec
+            plugin_file_path = os.path.join(i['plugin_path'], f"{i['plugin_name']}.py")
+            spec = importlib.util.spec_from_file_location("plugin", plugin_file_path)
+            plugin = importlib.util.module_from_spec(spec)
+            # 执行模块代码
+            spec.loader.exec_module(plugin)
+
+            for j in plugin_config['menu']:
+                action = Action(QIcon(j['menu_icon']), j['menu_name'],
+                                triggered=lambda _, p=j['menu_parameter']: getattr(plugin, j["function_name"])(p))
+                plugin_access.addAction(action)
+
+            self.menu.addMenu(plugin_access)
+            self.menu.addSeparator()
+        except Exception as err:
+            print(f"{i['plugin_name']}模块出错: {str(err)}")
 
     def _open_manage_page(self):
         """打开插件管理页面

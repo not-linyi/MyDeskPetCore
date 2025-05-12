@@ -1,0 +1,13 @@
+# 配置文件
+[plugin]
+icon = "PLAY"
+plugin_chinese_name = "快速命令"
+plugin_name = "QuickStart"
+plugin_type = "menu"
+
+# 快速访问配置
+[[menu]]
+menu_name = "linuxqq"
+menu_icon = ""
+menu_parameter = "linuxqq"
+function_name = "execute_command"

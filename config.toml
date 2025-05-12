@@ -18,3 +18,10 @@ scale = 0.75
 [animation]
 # 帧率设置 (fps)
 frame_rate_ms = 60
+
+[[plugin]]
+plugin_chinese_name = "快速命令"
+plugin_path = "src/Plugin/QuickStart"
+plugin_name = "QuickStart"
+plugin_type = "menu"
+enabled = true
