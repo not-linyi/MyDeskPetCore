@@ -102,7 +102,6 @@ class ContextMenuEvent:
     def _open_manage_page(self):
         """打开插件管理页面
 
-        当前为空实现，需后续扩展具体页面打开逻辑
         """
         # 使用单例模式，如果实例不存在则创建
         if ContextMenuEvent.main_window_instance is None:
@@ -113,7 +112,6 @@ class ContextMenuEvent:
     def _open_about_page(self):
         """打开关于页面
 
-        当前为空实现，需后续扩展具体页面打开逻辑
         """
         # 使用单例模式，如果实例不存在则创建
         if ContextMenuEvent.main_window_instance is None:

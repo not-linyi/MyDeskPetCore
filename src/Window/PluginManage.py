@@ -1,7 +1,11 @@
+import os
+
 from PySide6.QtCore import Qt, Signal
-from PySide6.QtWidgets import QVBoxLayout, QScrollArea, QFrame, QLabel, QHBoxLayout
+from PySide6.QtWidgets import QVBoxLayout, QScrollArea, QFrame, QLabel, QHBoxLayout, QFileDialog, QMessageBox
 from qfluentwidgets import ScrollArea, SubtitleLabel, PrimaryPushButton, FluentIcon, CardWidget, SwitchButton, \
-    BodyLabel, PushButton
+    BodyLabel, PushButton, InfoBar, InfoBarPosition
+
+from src.ConfigManager import ConfigManager
 
 
 class PluginCard(CardWidget):
@@ -203,7 +207,84 @@ class PluginManagePage(ScrollArea):
 
     def add_new_plugin(self):
         """处理添加新插件操作"""
-        pass
+        config_path = ""
+        # 选择插件目录
+        plugin_dir = QFileDialog.getExistingDirectory(
+            self, "选择插件目录",
+            os.path.join(os.path.dirname(config_path), "src", "plugin")
+        )
+
+        if not plugin_dir:
+            return
+
+        # 检查是否是有效插件目录
+        config_file = os.path.join(plugin_dir, "config.toml")
+        if not os.path.exists(config_file):
+            QMessageBox.warning(
+                self, "无效的插件",
+                f"所选目录不是有效的插件目录，缺少必要的文件:\n"
+                f"- config.toml\n"
+            )
+            return
+        new_plugin = None
+        try:
+            plugin_config_manager = ConfigManager(config_file, create_if_not_exists=False)
+            plugin_name = plugin_config_manager.config.get('plugin').get('plugin_name')
+            plugin_chinese_name = plugin_config_manager.config.get('plugin').get('plugin_chinese_name') or plugin_name
+            plugin_type = plugin_config_manager.config.get('plugin').get('plugin_type')
+
+            new_plugin = {
+                "plugin_chinese_name": plugin_chinese_name,
+                "plugin_path": plugin_dir,
+                "plugin_name": plugin_name,
+                "plugin_type": plugin_type,
+                "enabled": True
+            }
+
+            # 更新配置
+            if 'plugins' not in self.configmanager.config:
+                self.configmanager.config['plugins'] = []
+
+            # 检查是否已存在
+            for existing_plugin in self.configmanager.config['plugins']:
+                if existing_plugin.get('plugin_name') == plugin_name:
+                    QMessageBox.warning(
+                        self, "插件已存在",
+                        f"插件 '{plugin_name}' 已经存在，不能重复添加。"
+                    )
+                    return
+        except Exception as e:
+            QMessageBox.warning(
+                self, "无效的插件",
+                f"所选目录不是有效的插件目录，无法读取配置文件:\n"
+                f"- {config_file}\n"
+                f"错误信息:\n"
+                f"{e}"
+            )
+
+        try:
+            # 添加新插件
+            self.configmanager.config['plugins'].append(new_plugin)
+            # 保存配置
+            self.configmanager.save()
+            self.pet_parent.plugins = self.configmanager.config['plugins']
+            # 添加插件卡片
+            self.add_plugin_card(new_plugin)
+            # 显示成功消息
+            InfoBar.success(
+                title="添加成功",
+                content=f"插件 '{new_plugin['plugin_chinese_name'] or new_plugin['plugin_name']}' 已成功添加",
+                orient=Qt.Orientation.Horizontal,
+                isClosable=True,
+                position=InfoBarPosition.TOP,
+                duration=2000,
+                parent=self
+            )
+        except Exception as e:
+            QMessageBox.critical(
+                self, "保存失败",
+                f"保存配置文件时出错: {str(e)}"
+            )
 
     def on_plugin_status_changed(self, plugin_name, enabled):
         """处理插件状态变化事件
@@ -212,7 +293,29 @@ class PluginManagePage(ScrollArea):
             plugin_name (str): 插件名称
             enabled (bool): 新的状态值
         """
-        pass
+        status = "启用" if enabled else "禁用"
+        InfoBar.info(
+            title=f"插件{status}",
+            content=f"插件 '{plugin_name}' 已{status}",
+            orient=Qt.Orientation.Horizontal,
+            isClosable=True,
+            position=InfoBarPosition.BOTTOM,
+            duration=2000,
+            parent=self
+        )
+
+        for plugin in self.configmanager.config['plugins']:
+            if plugin['plugin_name'] == plugin_name:
+                plugin['enabled'] = enabled
+                break
+        try:
+            self.configmanager.save()
+            self.pet_parent.plugins = self.configmanager.config['plugins']
+        except Exception as e:
+            QMessageBox.critical(
+                self, "保存失败",
+                f"保存配置文件时出错: {str(e)}"
+            )
 
     def on_plugin_delete_requested(self, plugin_name):
         """处理插件删除请求事件
@@ -220,4 +323,43 @@ class PluginManagePage(ScrollArea):
         Args:
             plugin_name (str): 要删除的插件名称
         """
-        pass
+        # 确认删除
+        reply = QMessageBox.question(
+            self, "确认删除",
+            f"确定要删除插件 '{plugin_name}' 吗？\n\n注意：这只会从配置中移除插件，不会删除插件文件。",
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+            QMessageBox.StandardButton.No
+        )
+
+        if reply != QMessageBox.StandardButton.Yes:
+            return
+
+        try:
+            # 从配置中移除插件
+            plugins = self.configmanager.config.get('plugins', [])
+            for i, plugin in enumerate(plugins):
+                if plugin.get('plugin_name') == plugin_name:
+                    del plugins[i]
+                    break
+            self.pet_parent.plugins = plugins
+            # 保存配置
+            self.configmanager.save()
+            # 移除插件卡片
+            if plugin_name in self.plugin_cards:
+                self.plugin_cards[plugin_name].setParent(None)
+                del self.plugin_cards[plugin_name]
+            # 显示成功消息
+            InfoBar.success(
+                title="删除成功",
+                content=f"插件 '{plugin_name}' 已成功删除",
+                orient=Qt.Orientation.Horizontal,
+                isClosable=True,
+                position=InfoBarPosition.TOP,
+                duration=2000,
+                parent=self
+            )
+        except Exception as e:
+            QMessageBox.critical(
+                self, "删除失败",
+                f"删除时出错: {str(e)}"
+            )

@@ -38,7 +38,7 @@ class PetMain(QOpenGLWidget):
         # 从配置文件中读取动画帧率的设置
         self.frame_rate_ms = self.configmanager.config["animation"]["frame_rate_ms"]
 
-        self.plugins = self.configmanager.config["plugin"]
+        self.plugins = self.configmanager.config.get("plugins", [])
 
         # 设置初始窗口位置
         self.move(self.pet_x, self.pet_y)
