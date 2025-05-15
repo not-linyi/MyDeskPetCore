@@ -12,7 +12,7 @@ width = 400
 height = 400
 
 [model]
-model_path = "resources/Live2dModel/Firefly-desktop/Firefly.model3.json"
+model_path = "/mnt/sharedisk/码上寄/python/MyDeskPetCore/resources/Live2dModel/Firefly-desktop/Firefly.model3.json"
 scale = 0.75
 
 [animation]

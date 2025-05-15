@@ -122,6 +122,8 @@ class ContextMenuEvent:
     def _open_settings_page(self):
         """打开设置页面
 
-        当前为空实现，需后续扩展具体页面打开逻辑
         """
-        pass
+        if ContextMenuEvent.main_window_instance is None:
+            ContextMenuEvent.main_window_instance = MainWindow.MainWindow(self.parent)
+
+        ContextMenuEvent.main_window_instance.switch_to_settings()
