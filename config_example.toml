@@ -10,7 +10,7 @@ height = 400
 
 [model]
 # 模型路径
-model_path = "resources/Live2dMod/Firefly-desktop/Firefly.model3.json"
+model_path = "resources/Live2dModel/Firefly-desktop/Firefly.model3.json"
 # 缩放比例
 scale = 0.75
 

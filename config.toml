@@ -1,9 +1,16 @@
 [[plugins]]
 plugin_chinese_name = "快速命令"
-plugin_path = "/mnt/sharedisk/码上寄/python/MyDeskPetCore/src/Plugin/QuickStart"
+plugin_path = "src/Plugin/QuickStart"
 plugin_name = "QuickStart"
 plugin_type = "menu"
-enabled = false
+enabled = true
+
+[[plugins]]
+plugin_chinese_name = "鼠标跟随"
+plugin_path = "src/Plugin/FollowMouse"
+plugin_name = "FollowMouse"
+plugin_type = "lasting"
+enabled = true
 
 [window]
 x = 300
@@ -12,7 +19,7 @@ width = 400
 height = 400
 
 [model]
-model_path = "/mnt/sharedisk/码上寄/python/MyDeskPetCore/resources/Live2dModel/Firefly-desktop/Firefly.model3.json"
+model_path = "resources/Live2dModel/Firefly-desktop/Firefly.model3.json"
 scale = 0.75
 
 [animation]

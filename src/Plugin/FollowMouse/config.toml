@@ -1,0 +1,6 @@
+# 配置文件
+[plugin]
+icon = "PLAY"
+plugin_chinese_name = "鼠标跟随"
+plugin_name = "FollowMouse"
+plugin_type = "lasting"

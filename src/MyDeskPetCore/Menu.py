@@ -1,4 +1,3 @@
-import importlib.util
 import os
 from typing import Any
 
@@ -7,7 +6,6 @@ from PySide6.QtWidgets import QSystemTrayIcon
 
 from qfluentwidgets import SystemTrayMenu, Action, FluentIcon, RoundMenu
 
-from ..ConfigManager import ConfigManager
 from ..Window import MainWindow
 
 
@@ -30,6 +28,9 @@ class ContextMenuEvent:
         self.parent = parent
         self.sysTray = QSystemTrayIcon()
         self.sysTray.setIcon(QIcon("resources/icon/logo.png"))
+
+        # 创建插件管理器实例
+        self.plugin_manager = self.parent.plugin_manager
 
         # 创建系统托盘菜单实例
         self.menu = SystemTrayMenu(parent=parent)
@@ -68,36 +69,44 @@ class ContextMenuEvent:
         # 显示右键菜单
         self.menu.exec(pos)
 
-    def add_plugin(self, i):
-        plugin_access = RoundMenu(i['plugin_chinese_name'])
-        try:
-            config_path = os.path.join(i['plugin_path'], "config.toml")
-            plugin_config: dict[str, Any] = ConfigManager(
-                config_path,
-                create_if_not_exists=False
-            ).config
-        except FileNotFoundError:
-            print(f"{i['plugin_name']}配置文件未找到，请检查文件路径。")
+    def add_plugin(self, plugin_info):
+        if plugin_info['plugin_type'] != 'menu':
             return
 
+        # 获取插件配置
+        plugin_config = self.plugin_manager.get_plugin_config(plugin_info)
+        if not plugin_config:
+            return
+            
+        # 加载插件模块
+        plugin = self.plugin_manager.load_plugin(plugin_info)
+        if not plugin:
+            return
+            
         try:
+            plugin_access = RoundMenu(plugin_info['plugin_chinese_name'])
             plugin_access.setIcon(FluentIcon[plugin_config['plugin']['icon']])
-            # 创建模块 spec
-            plugin_file_path = os.path.join(i['plugin_path'], f"{i['plugin_name']}.py")
-            spec = importlib.util.spec_from_file_location("plugin", plugin_file_path)
-            plugin = importlib.util.module_from_spec(spec)
-            # 执行模块代码
-            spec.loader.exec_module(plugin)
+            
+            # 尝试使用插件的自定义菜单方法
+            custom_menu_created = self.plugin_manager.execute_plugin_function(plugin_info,
+                                                                              'create_custom_menu',
+                                                                              plugin_access)
 
-            for j in plugin_config['menu']:
-                action = Action(QIcon(j['menu_icon']), j['menu_name'],
-                                triggered=lambda _, p=j['menu_parameter']: getattr(plugin, j["function_name"])(p))
-                plugin_access.addAction(action)
+            # 如果没有自定义菜单，则使用配置文件中的菜单项
+            if not custom_menu_created and 'menu' in plugin_config:
+                for menu_item in plugin_config['menu']:
+                    action = Action(
+                        QIcon(menu_item['menu_icon']), 
+                        menu_item['menu_name'],
+                        triggered=lambda _, p=menu_item['menu_parameter'], fn=menu_item["function_name"]: 
+                            self.plugin_manager.execute_plugin_function(plugin_info, fn, p)
+                    )
+                    plugin_access.addAction(action)
 
             self.menu.addMenu(plugin_access)
             self.menu.addSeparator()
         except Exception as err:
-            print(f"{i['plugin_name']}模块出错: {str(err)}")
+            print(f"{plugin_info['plugin_name']}菜单创建出错: {str(err)}")
 
     def _open_manage_page(self):
         """打开插件管理页面
