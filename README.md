@@ -5,7 +5,7 @@ tags:
   - 大作业
   - Python
 dateCreat: 2025-05-08 20:39
-dateUpdate: 2025-05-12 22:59
+dateUpdate: 2025-05-18 23:05
 ---
 
 # 我的桌宠
@@ -43,6 +43,9 @@ dateUpdate: 2025-05-12 22:59
 
 #### 目前开发计划
 实现插件系统
+实现预装插件
+	1. 鼠标跟随✅
+	2. 沉浸式桌宠✅
 
 ---
 
@@ -87,6 +90,7 @@ dateUpdate: 2025-05-12 22:59
 | BUG-001 | live2d模型有残影       | Major        | ✅已修复  |
 | BUG-002 | linux下配置目录解析失败    | **Critical** | ✅已修复  |
 | BUG-003 | 主界面最小化后，无法直接用桌宠唤出 | Minor        | ❓部分修复 |
+| BUG-004 | 桌宠在wayland环境下无法拖动 | Minor        | ❌待修复  |
 
 > [!bug] 更多详细BUG信息请查看 [Wiki 的 "已知BUG" 页面](https://github.com/not-linyi/MyDeskPetCore/wiki#1-bug%E5%88%97%E8%A1%A8)
 ---

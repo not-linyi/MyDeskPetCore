@@ -16,6 +16,7 @@ class PluginManager:
         plugins (list): 插件配置列表
         loaded_plugins (dict): 已加载的插件模块
         plugin_instances (dict): 已实例化的插件对象
+        plugin_types (dict): 插件类型缓存，用于避免重复的类型检查
     """
     
     def __init__(self, plugins: List[Dict[str, Any]]):
@@ -29,6 +30,8 @@ class PluginManager:
         self.loaded_plugins = {}
         # 缓存已实例化的插件对象
         self.plugin_instances = {}
+        # 缓存插件类型，避免重复的类型检查
+        self.plugin_types = {}
         
     def load_plugin(self, plugin_info: Dict[str, Any]) -> Optional[Any]:
         """加载插件模块
@@ -129,6 +132,15 @@ class PluginManager:
             if plugin_instance.initialize():
                 # 缓存插件实例
                 self.plugin_instances[plugin_name] = plugin_instance
+                # 缓存插件类型
+                if isinstance(plugin_instance, MenuPlugin):
+                    self.plugin_types[plugin_name] = 'menu'
+                elif isinstance(plugin_instance, LastingPlugin):
+                    self.plugin_types[plugin_name] = 'lasting'
+                elif isinstance(plugin_instance, InitPlugin):
+                    self.plugin_types[plugin_name] = 'init'
+                else:
+                    self.plugin_types[plugin_name] = 'unknown'
                 return plugin_instance
             else:
                 print(f"插件 {plugin_name} 初始化失败")
@@ -148,15 +160,22 @@ class PluginManager:
         返回值:
             Any: 函数执行结果
         """
+        plugin_name = plugin_info['plugin_name']
         if plugin_info.get('plugin_type') == 'menu':
             plugin_instance = self.get_plugin_instance(plugin_info)
             if not plugin_instance:
                 return None
             
-            if isinstance(plugin_instance, MenuPlugin):
+            # 使用缓存的类型信息避免重复的类型检查
+            if plugin_name in self.plugin_types and self.plugin_types[plugin_name] == 'menu':
+                return plugin_instance.execute_function(function_name, *args)
+            elif isinstance(plugin_instance, MenuPlugin):
+                # 如果缓存中没有类型信息，则进行检查并缓存
+                self.plugin_types[plugin_name] = 'menu'
                 return plugin_instance.execute_function(function_name, *args)
             else:
-                print(f"插件 {plugin_info['plugin_name']} 不是菜单型插件")
+                self.plugin_types[plugin_name] = 'unknown'
+                print(f"插件 {plugin_name} 不是菜单型插件")
                 return None
 
     def execute_lasting_plugins(self, parent):
@@ -166,19 +185,52 @@ class PluginManager:
             parent: 父对象，通常是PetMain实例
         """
         for plugin_info in self.plugins:
-            if plugin_info.get('enabled', True) and plugin_info.get('plugin_type') == 'lasting':
-                plugin_instance = self.get_plugin_instance(plugin_info)
-                if plugin_instance and isinstance(plugin_instance, LastingPlugin):
-                    plugin_instance.update(parent)
-                else:
-                    print(f"插件 {plugin_info['plugin_name']} 不是持续性插件?忽略执行")
+            plugin_name = plugin_info['plugin_name']
+            if not plugin_info.get('enabled', True) or plugin_info.get('plugin_type') != 'lasting':
+                continue
+                
+            # 获取插件实例
+            plugin_instance = self.get_plugin_instance(plugin_info)
+            if not plugin_instance:
+                continue
+                
+            # 使用缓存的类型信息避免重复的类型检查
+            if plugin_name in self.plugin_types and self.plugin_types[plugin_name] == 'lasting':
+                plugin_instance.update(parent)
+            elif isinstance(plugin_instance, LastingPlugin):
+                # 如果缓存中没有类型信息，则进行检查并缓存
+                self.plugin_types[plugin_name] = 'lasting'
+                plugin_instance.update(parent)
+            else:
+                self.plugin_types[plugin_name] = 'unknown'
+                print(f"插件 {plugin_name} 不是持续性插件，忽略执行")
     
-    def execute_init_plugins(self):
+    def execute_init_plugins(self, parent):
         """执行初始化型插件
         
         在应用程序启动时调用，用于执行初始化型插件
+
+        参数:
+            parent: 父对象，通常是PetMain实例
         """
         for plugin_info in self.plugins:
-            if plugin_info.get('enabled', True) and plugin_info.get('plugin_type') == 'init':
-                # 初始化型插件的初始化方法会自动执行初始化函数
-                self.get_plugin_instance(plugin_info)
+            plugin_name = plugin_info['plugin_name']
+            if not plugin_info.get('enabled', True) or plugin_info.get('plugin_type') != 'init':
+                continue
+                
+            # 获取插件实例
+            plugin_instance = self.get_plugin_instance(plugin_info)
+            if not plugin_instance:
+                continue
+                
+            # 使用缓存的类型信息避免重复的类型检查
+            function_name = plugin_info.get('function_name', 'on_init')
+            if plugin_name in self.plugin_types and self.plugin_types[plugin_name] == 'init':
+                getattr(plugin_instance, function_name)(parent)
+            elif isinstance(plugin_instance, InitPlugin):
+                # 如果缓存中没有类型信息，则进行检查并缓存
+                self.plugin_types[plugin_name] = 'init'
+                getattr(plugin_instance, function_name)(parent)
+            else:
+                self.plugin_types[plugin_name] = 'unknown'
+                print(f"插件 {plugin_name} 不是初始化型插件，忽略执行")

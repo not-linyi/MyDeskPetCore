@@ -1,7 +1,7 @@
 import os
 import sys
 
-from PySide6.QtCore import QTimer
+from PySide6.QtCore import QTimer, Qt
 from PySide6.QtOpenGLWidgets import QOpenGLWidget
 
 from .Live2d import Live2dModel
@@ -43,10 +43,10 @@ class PetMain(QOpenGLWidget):
         # 创建插件管理器
         self.plugin_manager = PluginManager(self.plugins)
         # 执行初始化型插件
-        self.plugin_manager.execute_init_plugins()
+        self.plugin_manager.execute_init_plugins(self)
 
         # 设置初始窗口位置
-        self.move(self.pet_x, self.pet_y)
+        self.setGeometry(self.pet_x, self.pet_y, self.window_width, self.window_height)
 
         # 创建定时器用于更新模型
         self.timer = QTimer(self)
@@ -57,6 +57,22 @@ class PetMain(QOpenGLWidget):
 
         # 创建托盘菜单
         self.tray = None
+
+        self.draggable = False
+        self.offset = None
+
+    def mousePressEvent(self, event):
+        if event.button() == Qt.MouseButton.LeftButton:
+            self.draggable = True
+            self.offset = event.pos()
+
+    def mouseMoveEvent(self, event):
+        if self.draggable:
+            self.move(event.globalPos() - self.offset)
+
+    def mouseReleaseEvent(self, event):
+        if event.button() == Qt.MouseButton.LeftButton:
+            self.draggable = False
 
     def paintGL(self):
         # 执行持续性插件

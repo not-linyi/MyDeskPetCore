@@ -160,17 +160,9 @@ class InitPlugin(PluginBase):
         返回值:
             bool: 初始化是否成功
         """
-        function_name = self.plugin_info.get('function_name', 'on_init')
-        if hasattr(self, function_name):
-            try:
-                getattr(self, function_name)()
-                return True
-            except Exception as e:
-                print(f"初始化型插件 {self.plugin_info['plugin_name']} 执行函数 {function_name} 失败: {e}")
-                return False
-        return False
+        return True
 
-    def on_init(self) -> None:
+    def on_init(self, parent=None) -> None:
         """默认的初始化函数
         
         在应用程序启动时执行一次

@@ -65,8 +65,7 @@ class MainWindow(MSFluentWindow):
 
     def show_normal(self):
         """恢复窗口显示
-        
-        针对不同环境（特别是KDE6/Wayland）进行了优化处理，
+
         确保窗口能够从最小化状态正确恢复并获得焦点
         """
         # 如果窗口被最小化，则恢复正常显示
@@ -79,14 +78,7 @@ class MainWindow(MSFluentWindow):
         self.activateWindow()
 
     def closeEvent(self, event):
-        """处理窗口关闭事件
-
-        重写closeEvent方法，确保窗口关闭时正确清理资源，
-        防止关闭再开时出现异常
-        """
-        # 从Menu.py的ContextMenuEvent类中清除MainWindow实例引用
-        from ..MyDeskPetCore.Menu import ContextMenuEvent
-        ContextMenuEvent.main_window_instance = None
-
-        # 接受关闭事件，允许窗口关闭
-        event.accept()
+        # 重写关闭事件，使窗口关闭时只隐藏而不销毁
+        # 这样可以防止关闭此窗口时影响Pet窗口
+        event.ignore()
+        self.hide()

@@ -12,11 +12,20 @@ plugin_name = "FollowMouse"
 plugin_type = "lasting"
 enabled = true
 
+[[plugins]]
+icon = ""
+plugin_chinese_name = " 沉浸式桌宠"
+plugin_name = "Immersive"
+function_name = "immersive"
+plugin_type = "init"
+plugin_path = "/mnt/sharedisk/码上寄/python/MyDeskPetCore/src/Plugin/Immersive"
+enabled = true
+
 [window]
 x = 300
-y = 200
-width = 400
-height = 400
+y = 300
+width = 500
+height = 500
 
 [model]
 model_path = "resources/Live2dModel/Firefly-desktop/Firefly.model3.json"

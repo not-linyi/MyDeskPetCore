@@ -1,9 +1,9 @@
 import os
 
 from PySide6.QtCore import Qt, Signal
-from PySide6.QtWidgets import QVBoxLayout, QScrollArea, QFrame, QLabel, QHBoxLayout, QFileDialog, QMessageBox
+from PySide6.QtWidgets import QVBoxLayout, QHBoxLayout, QFileDialog, QMessageBox, QWidget
 from qfluentwidgets import ScrollArea, SubtitleLabel, PrimaryPushButton, FluentIcon, CardWidget, SwitchButton, \
-    BodyLabel, PushButton, InfoBar, InfoBarPosition
+    BodyLabel, PushButton, InfoBar, InfoBarPosition, StrongBodyLabel
 
 from src.ConfigManager import ConfigManager
 
@@ -47,7 +47,7 @@ class PluginCard(CardWidget):
 
         # 标题行布局（包含中文名称和开关按钮）
         title_layout = QHBoxLayout()
-        title_label = SubtitleLabel(self.plugin_chinese_name, self)
+        title_label = StrongBodyLabel(self.plugin_chinese_name, self)
         title_layout.addWidget(title_label)
         title_layout.addStretch(1)
 
@@ -132,48 +132,63 @@ class PluginManagePage(ScrollArea):
         self.configmanager = self.pet_parent.configmanager
         self.plugin_cards = {}
 
-        # 创建垂直布局和滚动区域
-        self.vbox_layout = QVBoxLayout(self)
-        self.scroll_area = QScrollArea(self)
+        # 创建内容视图容器
+        self.view = QWidget(self)
+        self.vBoxLayout = QVBoxLayout(self.view)
+        self.vBoxLayout.setContentsMargins(20, 20, 20, 20)
+        self.vBoxLayout.setSpacing(15)
 
-        # 插件容器初始化
-        self.plugin_container = ScrollArea()
-        self.plugin_container.enableTransparentBackground()
-        self.plugin_layout = QVBoxLayout(self.plugin_container)
+        # 描述文本
+        self.descLabel = BodyLabel("在这里管理您的插件", self)
+
+        # 标题部分
+        self.titleLabel = SubtitleLabel("插件管理", self)
+
+        # 底部按钮区域
+        self.bottomLayout = QHBoxLayout()
+        # 添加新插件按钮
+        self.addPluginButton = PrimaryPushButton("添加新插件", self)
+
+        # 插件容器区域
+        self.pluginsContainer = QWidget(self)
+        self.pluginsLayout = QVBoxLayout(self.pluginsContainer)
+
+        # 设置滚动区域属性
+        self.setWidget(self.view)
+        self.setWidgetResizable(True)
+
         self.setup_ui()
         self.load_plugins()
 
-    def setup_ui(self):
-        """构建页面UI布局"""
-        # 布局基础设置
-        self.vbox_layout.setContentsMargins(20, 20, 20, 20)
-        self.vbox_layout.setSpacing(10)
-
-        # 标题和描述文本
-        title_label = SubtitleLabel("插件管理", self)
-        self.vbox_layout.addWidget(title_label)
-        self.vbox_layout.addWidget(QLabel("在这里管理您的插件", self))
-
-        # 滚动区域配置
-        self.scroll_area.setWidgetResizable(True)
-        self.scroll_area.setFrameShape(QFrame.Shape.NoFrame)
-
-        # 插件容器布局设置
-        self.plugin_layout.setContentsMargins(0, 0, 0, 0)
-        self.plugin_layout.setSpacing(16)
-        self.plugin_layout.setAlignment(Qt.AlignmentFlag.AlignTop)
-
-        self.scroll_area.setWidget(self.plugin_container)
-        self.vbox_layout.addWidget(self.scroll_area)
-
-        # 添加新插件按钮
-        add_plugin_button = PrimaryPushButton("添加新插件", self)
-        add_plugin_button.setIcon(FluentIcon.ADD)
-        add_plugin_button.clicked.connect(self.add_new_plugin)
-        self.vbox_layout.addWidget(add_plugin_button, 0, Qt.AlignmentFlag.AlignRight)
-
         # 启用透明背景功能
         self.enableTransparentBackground()
+
+    def setup_ui(self):
+        """构建页面UI布局"""
+        self.vBoxLayout.addWidget(self.titleLabel)
+
+        self.vBoxLayout.addWidget(self.descLabel)
+
+        self.pluginsLayout.setContentsMargins(0, 10, 0, 10)
+        self.pluginsLayout.setSpacing(15)
+        self.pluginsLayout.setAlignment(Qt.AlignmentFlag.AlignTop)
+
+        # 添加插件容器到主布局
+        self.vBoxLayout.addWidget(self.pluginsContainer)
+
+        # 添加弹性空间
+        self.vBoxLayout.addStretch(1)
+
+        self.bottomLayout.setContentsMargins(0, 10, 0, 0)
+
+        self.addPluginButton.setIcon(FluentIcon.ADD)
+        self.addPluginButton.clicked.connect(self.add_new_plugin)
+
+        self.bottomLayout.addStretch(1)
+        self.bottomLayout.addWidget(self.addPluginButton)
+
+        # 添加底部布局到主布局
+        self.vBoxLayout.addLayout(self.bottomLayout)
 
     def load_plugins(self):
         """加载配置中的插件信息并生成卡片"""
@@ -202,7 +217,7 @@ class PluginManagePage(ScrollArea):
         card.deleteRequested.connect(self.on_plugin_delete_requested)
 
         # 添加到布局
-        self.plugin_layout.addWidget(card)
+        self.pluginsLayout.addWidget(card)
         self.plugin_cards[plugin_name] = card
 
     def add_new_plugin(self):
@@ -230,16 +245,10 @@ class PluginManagePage(ScrollArea):
         try:
             plugin_config_manager = ConfigManager(config_file, create_if_not_exists=False)
             plugin_name = plugin_config_manager.config.get('plugin').get('plugin_name')
-            plugin_chinese_name = plugin_config_manager.config.get('plugin').get('plugin_chinese_name') or plugin_name
-            plugin_type = plugin_config_manager.config.get('plugin').get('plugin_type')
 
-            new_plugin = {
-                "plugin_chinese_name": plugin_chinese_name,
-                "plugin_path": plugin_dir,
-                "plugin_name": plugin_name,
-                "plugin_type": plugin_type,
-                "enabled": True
-            }
+            new_plugin = plugin_config_manager.config.get('plugin')
+            new_plugin['plugin_path'] = plugin_dir
+            new_plugin['enabled'] = True
 
             # 更新配置
             if 'plugins' not in self.configmanager.config:
