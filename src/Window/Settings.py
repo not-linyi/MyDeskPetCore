@@ -1,9 +1,10 @@
 from PySide6.QtCore import Qt
+from PySide6.QtGui import QColor
 from PySide6.QtWidgets import QVBoxLayout, QLabel, QHBoxLayout, QWidget, QFileDialog
 from qfluentwidgets import (
     SubtitleLabel, PushButton, EditableComboBox, FluentIcon, PrimaryPushButton, IconWidget, BodyLabel,
     InfoBarIcon, TeachingTip, TeachingTipTailPosition,
-    CardWidget, StrongBodyLabel, ScrollArea
+    CardWidget, StrongBodyLabel, ScrollArea, ColorDialog
 )
 
 
@@ -62,6 +63,12 @@ class WindowSettingsCard(BaseSettingsCard):
         self.yComboBox.addItems(["300", "400", "500", "600", "700", "800", "900"])
         self.yComboBox.setFixedWidth(120)
         self.addSettingItem("窗口Y坐标", "设置桌宠窗口出现的Y坐标", self.yComboBox)
+
+        # 背景颜色设置
+        self.current_bg_color = [1, 2, 3, 128]
+        self.bgColorButton = PushButton("选择颜色", self)
+        self.bgColorButton.setFixedWidth(120)
+        self.addSettingItem("透明背景色", "设置桌宠的透明背景颜色", self.bgColorButton)
 
 
 # 模型设置卡片
@@ -152,9 +159,13 @@ class SettingsPage(ScrollArea):
         # 连接模型选择按钮的点击事件
         self.modelSettingsCard.modelPathButton.clicked.connect(self.selectModel)
 
+        # 连接背景色按钮点击事件
+        self.windowSettingsCard.bgColorButton.clicked.connect(self.choose_custom_color)
+
         # 底部按钮区域
         self.addBottomButtons()
 
+        #  启用透明背景
         self.enableTransparentBackground()
 
     def addBottomButtons(self):
@@ -229,6 +240,7 @@ class SettingsPage(ScrollArea):
             scale = float(self.modelSettingsCard.scale_combo_box.currentText())
             frame_rate_ms = int(self.animationSettingsCard.frameRateComboBox.currentText())
             model_path = self.modelSettingsCard.model_path
+            background_color = self.windowSettingsCard.current_bg_color
 
             # 直接更新pet_parent对象的属性
             self.pet_parent.window_width = width
@@ -236,6 +248,7 @@ class SettingsPage(ScrollArea):
             self.pet_parent.scale = scale
             self.pet_parent.frame_rate_ms = frame_rate_ms
             self.pet_parent.model_path = model_path
+            self.pet_parent.background_color = background_color
 
             # 更新桌宠对象
             self.pet_parent.timer.setInterval(1000 // frame_rate_ms)
@@ -249,6 +262,7 @@ class SettingsPage(ScrollArea):
                 self.configManager.config["window"]["height"] = height
                 self.configManager.config["window"]["x"] = pet_x
                 self.configManager.config["window"]["y"] = pet_y
+                self.configManager.config["window"]["background_color"] = background_color
 
                 # 模型设置
                 if "model" not in self.configManager.config:
@@ -264,7 +278,8 @@ class SettingsPage(ScrollArea):
                 # 保存配置
                 self.configManager.save()
 
-            self.showMessage(self.saveButton, InfoBarIcon.SUCCESS, "保存成功", "设置已成功保存，部分设置可能需要重启应用后生效")
+            self.showMessage(self.saveButton, InfoBarIcon.SUCCESS, "保存成功",
+                             "设置已成功保存，部分设置可能需要重启应用后生效")
         except Exception as e:
             self.showMessage(self.saveButton, InfoBarIcon.ERROR, "保存失败", f"保存设置失败: {str(e)}")
 
@@ -305,3 +320,19 @@ class SettingsPage(ScrollArea):
         openfile_name = QFileDialog.getOpenFileName(self, '选择模型', '', '*.model3.json')
         if openfile_name[0]:
             self.modelSettingsCard.model_path = openfile_name[0]
+
+    def choose_custom_color(self):
+        """打开颜色选择对话框，让用户选择自定义背景颜色"""
+        # 获取当前背景颜色
+        current_color = QColor(self.windowSettingsCard.current_bg_color[0],
+                               self.windowSettingsCard.current_bg_color[1],
+                               self.windowSettingsCard.current_bg_color[2],
+                               self.windowSettingsCard.current_bg_color[3])
+
+        dialog = ColorDialog(current_color, '选择背景颜色', self, False)
+        dialog.setWindowTitle('选择背景颜色')
+        if dialog.exec():
+            # 设置新的背景颜色
+            color = dialog.color
+            new_color = [color.red(), color.green(), color.blue(), 0]
+            self.windowSettingsCard.current_bg_color = new_color

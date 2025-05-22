@@ -40,6 +40,8 @@ class PetMain(QOpenGLWidget):
         self.frame_rate_ms = self.configmanager.config["animation"]["frame_rate_ms"]
 
         self.plugins = self.configmanager.config.get("plugins", [])
+        self.background_color = self.configmanager.config["window"]["background_color"]
+
         # 创建插件管理器
         self.plugin_manager = PluginManager(self.plugins)
         # 执行初始化型插件
@@ -81,7 +83,7 @@ class PetMain(QOpenGLWidget):
         # 更新模型状态
         self.live2d.update(self.scale)
         # 绘制模型
-        self.live2d.draw()
+        self.live2d.draw(self.background_color)
 
     def initializeGL(self) -> None:
         self.live2d.initialize(self.model_path, (self.window_width, self.window_height))
@@ -101,7 +103,7 @@ class PetMain(QOpenGLWidget):
 
     def closeEvent(self, event):
         """处理窗口关闭事件
-        
+
         确保在窗口关闭时正确释放资源，防止关闭再开时出现异常
         """
 

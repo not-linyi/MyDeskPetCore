@@ -12,4 +12,6 @@ class Immersive(InitPlugin):
             | Qt.WindowType.Tool
             | Qt.WindowType.SubWindow
             | Qt.WindowType.WindowStaysOnTopHint)
+
+        # 设置窗口透明
         parent.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)

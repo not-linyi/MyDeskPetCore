@@ -1,9 +1,5 @@
-import os
-from typing import Any
-
 from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import QSystemTrayIcon
-
 from qfluentwidgets import SystemTrayMenu, Action, FluentIcon, RoundMenu
 
 from ..Window import MainWindow
@@ -13,7 +9,7 @@ class ContextMenuEvent:
     """系统托盘菜单事件处理器
 
     该类用于创建并管理应用程序的系统托盘菜单，包含插件管理、关于和设置三个功能项。
-    每个菜单项关联对应的页面打开方法，当前方法体暂未实现。
+    每个菜单项关联对应的页面打开方法
     """
 
     # 保存MainWindow实例的类变量
@@ -85,8 +81,12 @@ class ContextMenuEvent:
             
         try:
             plugin_access = RoundMenu(plugin_info['plugin_chinese_name'])
-            plugin_access.setIcon(FluentIcon[plugin_config['plugin']['icon']])
-            
+            icon_name = plugin_config['plugin']['icon']
+            try:
+                plugin_access.setIcon(FluentIcon[icon_name])
+            except KeyError:
+                plugin_access.setIcon(QIcon(icon_name))
+
             # 尝试使用插件的自定义菜单方法
             custom_menu_created = self.plugin_manager.execute_plugin_function(plugin_info,
                                                                               'create_custom_menu',

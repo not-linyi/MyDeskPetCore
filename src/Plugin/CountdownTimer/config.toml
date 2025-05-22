@@ -1,0 +1,41 @@
+[plugin]
+icon = "src/Plugin/CountdownTimer/倒计时.svg"
+plugin_chinese_name = "倒计时插件"
+plugin_name = "CountdownTimer"
+plugin_type = "menu"
+
+[[menu]]
+menu_name = "5分钟倒计时"
+menu_icon = "src/Plugin/CountdownTimer/倒计时.svg"
+function_name = "start_countdown"
+menu_parameter = "300"
+
+[[menu]]
+menu_name = "10分钟倒计时"
+menu_icon = "src/Plugin/CountdownTimer/倒计时.svg"
+function_name = "start_countdown"
+menu_parameter = "600"
+
+[[menu]]
+menu_name = "15分钟倒计时"
+menu_icon = "src/Plugin/CountdownTimer/倒计时.svg"
+function_name = "start_countdown"
+menu_parameter = "900"
+
+[[menu]]
+menu_name = "30分钟倒计时"
+menu_icon = "src/Plugin/CountdownTimer/倒计时.svg"
+function_name = "start_countdown"
+menu_parameter = "1800"
+
+[[menu]]
+menu_name = "1小时倒计时"
+menu_icon = "src/Plugin/CountdownTimer/倒计时.svg"
+function_name = "start_countdown"
+menu_parameter = "3600"
+
+[[menu]]
+menu_name = "自定义倒计时"
+menu_icon = "src/Plugin/CountdownTimer/倒计时.svg"
+function_name = "custom_countdown"
+menu_parameter = ""

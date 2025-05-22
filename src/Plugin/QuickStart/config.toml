@@ -1,11 +1,11 @@
-# 配置文件
 [plugin]
 icon = "PLAY"
 plugin_chinese_name = "快速命令"
 plugin_name = "QuickStart"
+main_page = "ConfigPage"
+main_page_class_name = "ConfigPage"
 plugin_type = "menu"
 
-# 快速访问配置
 [[menu]]
 menu_name = "linuxqq"
 menu_icon = ""

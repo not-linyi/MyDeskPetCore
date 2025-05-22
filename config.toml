@@ -18,7 +18,24 @@ plugin_chinese_name = " 沉浸式桌宠"
 plugin_name = "Immersive"
 function_name = "immersive"
 plugin_type = "init"
-plugin_path = "/mnt/sharedisk/码上寄/python/MyDeskPetCore/src/Plugin/Immersive"
+plugin_path = "src/Plugin/Immersive"
+enabled = true
+
+[[plugins]]
+icon = ""
+plugin_chinese_name = " 沉浸式桌宠增强"
+plugin_name = "ImmersivePlus"
+function_name = "immersive_plus"
+plugin_type = "init"
+plugin_path = "src/Plugin/ImmersivePlus"
+enabled = true
+
+[[plugins]]
+icon = "src/Plugin/CountdownTimer/倒计时.svg"
+plugin_chinese_name = "倒计时插件"
+plugin_name = "CountdownTimer"
+plugin_type = "menu"
+plugin_path = "src/Plugin/CountdownTimer"
 enabled = true
 
 [window]
@@ -26,6 +43,12 @@ x = 300
 y = 300
 width = 500
 height = 500
+background_color = [
+    1,
+    2,
+    3,
+    0,
+]
 
 [model]
 model_path = "resources/Live2dModel/Firefly-desktop/Firefly.model3.json"

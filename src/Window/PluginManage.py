@@ -270,6 +270,7 @@ class PluginManagePage(ScrollArea):
                 f"错误信息:\n"
                 f"{e}"
             )
+            return
 
         try:
             # 添加新插件

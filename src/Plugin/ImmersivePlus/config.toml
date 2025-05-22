@@ -1,0 +1,7 @@
+# 配置文件
+[plugin]
+icon = ""
+plugin_chinese_name = " 沉浸式桌宠增强"
+plugin_name = "ImmersivePlus"
+function_name = "immersive_plus"
+plugin_type = "init"

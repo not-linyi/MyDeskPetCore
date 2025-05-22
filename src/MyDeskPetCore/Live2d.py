@@ -44,9 +44,12 @@ class Live2dModel:
         self.model.SetOffset(0, 0)
         self.model.SetScale(scale)
 
-    def draw(self):
+    def draw(self, background_color):
         # 清除缓冲区并绘制模型，避免残影
-        live2d.clearBuffer()
+        live2d.clearBuffer(background_color[0] / 255,
+                           background_color[1] / 255,
+                           background_color[2] / 255,
+                           0)
         self.model.Draw()
 
     @staticmethod
