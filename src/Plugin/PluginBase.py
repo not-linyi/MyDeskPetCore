@@ -82,7 +82,7 @@ class MenuPlugin(PluginBase):
         """
         return True
 
-    def execute_function(self, function_name: str, parameter: Any) -> Any:
+    def execute_function(self, function_name: str, params, parameter: Any) -> Any:
         """执行函数
         
         参数:
@@ -93,16 +93,16 @@ class MenuPlugin(PluginBase):
             Any: 函数执行结果
         """
         if hasattr(self, function_name):
-            return getattr(self, function_name)(parameter)
+            return getattr(self, function_name)(params, parameter)
         return None
         
-    def create_custom_menu(self, plugin_access):
+    def create_custom_menu(self, params, menu):
         """创建自定义菜单
         
         插件可以重写此方法来创建自定义菜单
         
         参数:
-            plugin_access: 插件自定义菜单
+            menu:  菜单实例
             
         返回值:
             bool: 是否已创建自定义菜单，True表示已创建，False表示使用默认的菜单模式

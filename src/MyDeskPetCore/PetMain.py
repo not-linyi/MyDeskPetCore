@@ -76,6 +76,9 @@ class PetMain(QOpenGLWidget):
         if event.button() == Qt.MouseButton.LeftButton:
             self.draggable = False
 
+    def keyPressEvent(self, event):
+        pass
+
     def paintGL(self):
         # 执行持续性插件
         self.plugin_manager.execute_lasting_plugins(self)

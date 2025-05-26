@@ -1,6 +1,6 @@
 [plugin]
 icon = "src/Plugin/CountdownTimer/倒计时.svg"
-plugin_chinese_name = "倒计时插件"
+plugin_chinese_name = "倒计时"
 plugin_name = "CountdownTimer"
 plugin_type = "menu"
 

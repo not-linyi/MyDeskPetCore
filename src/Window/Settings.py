@@ -68,7 +68,7 @@ class WindowSettingsCard(BaseSettingsCard):
         self.current_bg_color = [1, 2, 3, 128]
         self.bgColorButton = PushButton("选择颜色", self)
         self.bgColorButton.setFixedWidth(120)
-        self.addSettingItem("透明背景色", "设置桌宠的透明背景颜色", self.bgColorButton)
+        self.addSettingItem("背景色", "设置桌宠的背景颜色", self.bgColorButton)
 
 
 # 模型设置卡片

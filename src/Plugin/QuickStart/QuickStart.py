@@ -12,7 +12,7 @@ class QuickStartPlugin(MenuPlugin):
     """
 
     @staticmethod
-    def execute_command(parameter):
+    def execute_command(parent, parameter):
         """执行命令
         
         参数:

@@ -11,3 +11,9 @@ menu_name = "linuxqq"
 menu_icon = ""
 menu_parameter = "linuxqq"
 function_name = "execute_command"
+
+[[menu]]
+menu_name = "vs code"
+menu_icon = "D:\\MyApp\\Microsoft VS Code\\resources\\app\\resources\\win32\\code_70x70.png"
+menu_parameter = "D:\\MyApp\\Microsoft VS Code\\Code.exe"
+function_name = "execute_command"

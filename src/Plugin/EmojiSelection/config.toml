@@ -1,0 +1,6 @@
+[plugin]
+icon = ""
+plugin_chinese_name = "表情选择"
+plugin_name = "EmojiSelection"
+plugin_type = "menu"
+

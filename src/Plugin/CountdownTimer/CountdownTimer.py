@@ -184,11 +184,16 @@ class TimeInputDialog(QDialog):
         # 创建按钮
         button_box = QDialogButtonBox(QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel)
         button_box.accepted.connect(self.accept)
-        button_box.rejected.connect(self.reject)
+        button_box.rejected.connect(self.endProgress)
 
         # 添加到主布局
         layout.addLayout(time_layout)
         layout.addWidget(button_box)
+
+    def endProgress(self):
+        # 只关闭当前窗口，不影响主应用程序
+        self.hide()
+        self.deleteLater()  # 安全释放窗口资源
 
     def get_seconds(self):
         """获取设置的总秒数"""
@@ -213,7 +218,7 @@ class CountdownTimerPlugin(MenuPlugin):
         """
         return True
 
-    def start_countdown(self, seconds):
+    def start_countdown(self, _, seconds):
         """启动倒计时
 
         参数:
@@ -235,7 +240,7 @@ class CountdownTimerPlugin(MenuPlugin):
             import traceback
             traceback.print_exc()
 
-    def custom_countdown(self, _):
+    def custom_countdown(self, t, _):
         """自定义倒计时时间
         
         参数:
@@ -254,7 +259,7 @@ class CountdownTimerPlugin(MenuPlugin):
             if dialog.exec():
                 seconds = dialog.get_seconds()
                 if seconds > 0:
-                    self.start_countdown(seconds)
+                    self.start_countdown(None, seconds)
         except Exception as err:
             print(f"自定义倒计时出错: {str(err)}")
             import traceback

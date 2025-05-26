@@ -1,0 +1,5 @@
+[plugin]
+icon = "VIEW"
+plugin_chinese_name = "显示控制"
+plugin_name = "VisibilityToggle"
+plugin_type = "menu"

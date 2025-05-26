@@ -43,11 +43,11 @@ class PluginManager:
             Optional[Any]: 加载的插件模块，加载失败则返回None
         """
         plugin_name = plugin_info['plugin_name']
-        
+
         # 如果插件已经加载，直接返回
         if plugin_name in self.loaded_plugins:
             return self.loaded_plugins[plugin_name]
-        
+
         try:
             # 创建模块 spec
             plugin_file_path = os.path.join(plugin_info['plugin_path'], f"{plugin_name}.py")
@@ -149,7 +149,7 @@ class PluginManager:
             print(f"插件 {plugin_name} 实例化失败: {e}")
             return None
     
-    def execute_plugin_function(self, plugin_info: Dict[str, Any], function_name: str, *args, **kwargs) -> Any:
+    def execute_plugin_function(self, plugin_info: Dict[str, Any], function_name: str, params,  *args, **kwargs) -> Any:
         """执行插件函数
         
         参数:
@@ -168,11 +168,11 @@ class PluginManager:
             
             # 使用缓存的类型信息避免重复的类型检查
             if plugin_name in self.plugin_types and self.plugin_types[plugin_name] == 'menu':
-                return plugin_instance.execute_function(function_name, *args)
+                return plugin_instance.execute_function(function_name, params, *args)
             elif isinstance(plugin_instance, MenuPlugin):
                 # 如果缓存中没有类型信息，则进行检查并缓存
                 self.plugin_types[plugin_name] = 'menu'
-                return plugin_instance.execute_function(function_name, *args)
+                return plugin_instance.execute_function(function_name, params,  *args)
             else:
                 self.plugin_types[plugin_name] = 'unknown'
                 print(f"插件 {plugin_name} 不是菜单型插件")

@@ -32,10 +32,34 @@ enabled = true
 
 [[plugins]]
 icon = "src/Plugin/CountdownTimer/倒计时.svg"
-plugin_chinese_name = "倒计时插件"
+plugin_chinese_name = "倒计时"
 plugin_name = "CountdownTimer"
 plugin_type = "menu"
 plugin_path = "src/Plugin/CountdownTimer"
+enabled = true
+
+[[plugins]]
+icon = ""
+plugin_chinese_name = "表情选择"
+plugin_name = "EmojiSelection"
+plugin_type = "menu"
+plugin_path = "src/Plugin/EmojiSelection"
+enabled = true
+
+[[plugins]]
+icon = ""
+plugin_chinese_name = "动作选择"
+plugin_name = "ActionSelect"
+plugin_type = "menu"
+plugin_path = "src/Plugin/ActionSelect"
+enabled = true
+
+[[plugins]]
+icon = "VIEW"
+plugin_chinese_name = "显示控制"
+plugin_name = "VisibilityToggle"
+plugin_type = "menu"
+plugin_path = "src/Plugin/VisibilityToggle"
 enabled = true
 
 [window]

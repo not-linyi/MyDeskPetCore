@@ -1,0 +1,6 @@
+[plugin]
+icon = ""
+plugin_chinese_name = "动作选择"
+plugin_name = "ActionSelect"
+plugin_type = "menu"
+

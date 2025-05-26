@@ -42,6 +42,7 @@ class ContextMenuEvent:
         # 插件菜单
         for i in self.parent.plugins:
             self.add_plugin(i)
+        self.menu.addSeparator()
 
         # 创建关于菜单项并绑定事件
         self.about_action = Action(FluentIcon.INFO, '关于',
@@ -69,6 +70,9 @@ class ContextMenuEvent:
         if plugin_info['plugin_type'] != 'menu':
             return
 
+        if plugin_info['enabled'] is False:
+            return
+
         # 获取插件配置
         plugin_config = self.plugin_manager.get_plugin_config(plugin_info)
         if not plugin_config:
@@ -90,7 +94,8 @@ class ContextMenuEvent:
             # 尝试使用插件的自定义菜单方法
             custom_menu_created = self.plugin_manager.execute_plugin_function(plugin_info,
                                                                               'create_custom_menu',
-                                                                              plugin_access)
+                                                                              self.parent,
+                                                                              self.menu)
 
             # 如果没有自定义菜单，则使用配置文件中的菜单项
             if not custom_menu_created and 'menu' in plugin_config:
@@ -99,12 +104,10 @@ class ContextMenuEvent:
                         QIcon(menu_item['menu_icon']), 
                         menu_item['menu_name'],
                         triggered=lambda _, p=menu_item['menu_parameter'], fn=menu_item["function_name"]: 
-                            self.plugin_manager.execute_plugin_function(plugin_info, fn, p)
+                            self.plugin_manager.execute_plugin_function(plugin_info, fn, self.parent, p)
                     )
                     plugin_access.addAction(action)
-
-            self.menu.addMenu(plugin_access)
-            self.menu.addSeparator()
+                self.menu.addMenu(plugin_access)
         except Exception as err:
             print(f"{plugin_info['plugin_name']}菜单创建出错: {str(err)}")
 
